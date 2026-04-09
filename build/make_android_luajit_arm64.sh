@@ -8,6 +8,22 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 SRCDIR=$DIR/luajit-2.1.0b3
 # ANDROID_NDK=~/android-ndk-r10e
 
+# LuaJIT buildvm parser compares directives with "\n" literally.
+# Normalize CRLF to LF first to avoid wrong generated headers (e.g. lj_recdef.h).
+python3 - <<PY
+from pathlib import Path
+root = Path(r"${SRCDIR}")
+text_suffix = {".c", ".h", ".dasc", ".lua", ".s", ".S", ".in"}
+for p in root.rglob("*"):
+    if not p.is_file():
+        continue
+    if p.suffix not in text_suffix and p.name not in {"Makefile", "Makefile.dep"}:
+        continue
+    data = p.read_bytes()
+    if b"\r\n" in data:
+        p.write_bytes(data.replace(b"\r\n", b"\n"))
+PY
+
 OS=`uname -s`
 PREBUILT_PLATFORM=linux-x86_64
 if [[ "$OS" == "Darwin" ]]; then
