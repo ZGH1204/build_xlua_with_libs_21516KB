@@ -33,6 +33,14 @@
 #include <locale.h>
 #endif
 
+/* iOS SDK marks system() as unavailable. */
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#if TARGET_OS_IPHONE && !defined(LJ_NO_SYSTEM)
+#define LJ_NO_SYSTEM 1
+#endif
+#endif
+
 /* ------------------------------------------------------------------------ */
 
 #define LJLIB_MODULE_os
