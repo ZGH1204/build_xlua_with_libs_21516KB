@@ -24,6 +24,22 @@ fi
 
 cd luajit-2.1.0b3
 
+# LuaJIT buildvm parser compares directives with "\n" literally.
+# Normalize CRLF to LF first to avoid wrong generated headers (lj_libdef.h/lj_recdef.h).
+python3 - <<PY
+from pathlib import Path
+root = Path("src")
+text_suffix = {".c", ".h", ".dasc", ".lua", ".s", ".S", ".in"}
+for p in root.rglob("*"):
+    if not p.is_file():
+        continue
+    if p.suffix not in text_suffix and p.name not in {"Makefile", "Makefile.dep"}:
+        continue
+    data = p.read_bytes()
+    if b"\r\n" in data:
+        p.write_bytes(data.replace(b"\r\n", b"\n"))
+PY
+
 XCODEVER=$(xcodebuild -version | sed -n '1s/^Xcode \([0-9]*\).*/\1/p')
 ISOLD_XCODEVER=`echo "$XCODEVER < 10" | bc`
 if [ "$ISOLD_XCODEVER" = "1" ]
