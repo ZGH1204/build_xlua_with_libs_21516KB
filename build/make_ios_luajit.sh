@@ -24,7 +24,7 @@ fi
 
 cd luajit-2.1.0b3
 
-XCODEVER=`xcodebuild -version|head -n 1|sed 's/Xcode \([0-9]*\)/\1/g'`
+XCODEVER=$(xcodebuild -version | sed -n '1s/^Xcode \([0-9]*\).*/\1/p')
 ISOLD_XCODEVER=`echo "$XCODEVER < 10" | bc`
 if [ "$ISOLD_XCODEVER" = "1" ]
 then
