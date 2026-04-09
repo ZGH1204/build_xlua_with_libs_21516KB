@@ -1,3 +1,5 @@
+set -euo pipefail
+
 #if [ -z "$ANDROID_NDK" ]; then
     export ANDROID_NDK=~/android-ndk-r15c
 #fi
@@ -22,7 +24,8 @@ NDKARCH="-DLJ_ABI_SOFTFP=0 -DLJ_ARCH_HASFPU=1 -DLUAJIT_ENABLE_GC64=1"
 NDKF="--sysroot $ANDROID_NDK/platforms/android-$NDKABI/arch-arm64"
 cd "$SRCDIR"
 make clean
-make HOST_CC="gcc -m64" CROSS=$NDKP TARGET_SYS=Linux TARGET_FLAGS="$NDKF $NDKARCH"
+make HOST_CC="gcc -m64" CROSS=$NDKP TARGET_SYS=Linux TARGET_FLAGS="$NDKF $NDKARCH" BUILDMODE=static
+test -f "$SRCDIR/src/libluajit.a" || { echo "libluajit.a not generated for arm64-v8a"; exit 1; }
 
 cd "$DIR"
 mkdir -p build_lj_v8a && cd build_lj_v8a
@@ -40,7 +43,8 @@ NDKARCH="-march=armv7-a -mfloat-abi=softfp -Wl,--fix-cortex-a8"
 NDKF="--sysroot $ANDROID_NDK/platforms/android-$NDKABI/arch-arm"
 cd "$SRCDIR"
 make clean
-make HOST_CC="gcc -m32" CROSS=$NDKP TARGET_SYS=Linux TARGET_FLAGS="$NDKF $NDKARCH"
+make HOST_CC="gcc -m32" CROSS=$NDKP TARGET_SYS=Linux TARGET_FLAGS="$NDKF $NDKARCH" BUILDMODE=static
+test -f "$SRCDIR/src/libluajit.a" || { echo "libluajit.a not generated for armeabi-v7a"; exit 1; }
 
 cd "$DIR"
 mkdir -p build_lj_v7a && cd build_lj_v7a
@@ -56,7 +60,8 @@ NDKP=$NDKVER/prebuilt/$PREBUILT_PLATFORM/bin/i686-linux-android-
 NDKF="--sysroot $ANDROID_NDK/platforms/android-$NDKABI/arch-x86"
 cd "$SRCDIR"
 make clean
-make HOST_CC="gcc -m32" CROSS=$NDKP TARGET_SYS=Linux TARGET_FLAGS="$NDKF"
+make HOST_CC="gcc -m32" CROSS=$NDKP TARGET_SYS=Linux TARGET_FLAGS="$NDKF" BUILDMODE=static
+test -f "$SRCDIR/src/libluajit.a" || { echo "libluajit.a not generated for x86"; exit 1; }
 
 cd "$DIR"
 mkdir -p build_lj_x86 && cd build_lj_x86
